@@ -9,6 +9,7 @@ const EmiCalculator = () => {
   const [emi, setEmi] = useState("");
   const [totalPayment, setTotalPayment] = useState("");
   const [roi, setRoi] = useState("");
+  const [chartData, setChartData] = useState(null);
   const chartRef = useRef(null);
 
   const calculateEmi = () => {
@@ -26,7 +27,22 @@ const EmiCalculator = () => {
     setRoi(rateOfInterest.toFixed(2));
 
     // Update the chart data
-    if (chartRef.current) {
+    const newChartData = {
+      labels: ["EMI", "Total Payment", "Principal"],
+      datasets: [
+        {
+          label: "Amount",
+          data: [emiAmount.toFixed(2), totalAmount.toFixed(2), principal],
+          backgroundColor: ["#36A2EB", "#FF6384", "#FFCE56"],
+        },
+      ],
+    };
+    setChartData(newChartData);
+  };
+
+  useEffect(() => {
+    // Initialize the chart when the component mounts
+    if (chartRef.current && chartData) {
       const ctx = chartRef.current.getContext("2d");
 
       // Destroy previous chart if it exists
@@ -36,16 +52,7 @@ const EmiCalculator = () => {
 
       window.chartInstance = new Chart(ctx, {
         type: "bar",
-        data: {
-          labels: ["EMI", "Total Payment", "Principal"],
-          datasets: [
-            {
-              label: "Amount",
-              data: [emiAmount.toFixed(2), totalAmount.toFixed(2), principal],
-              backgroundColor: ["#36A2EB", "#FF6384", "#FFCE56"],
-            },
-          ],
-        },
+        data: chartData,
         options: {
           responsive: true,
           scales: {
@@ -69,16 +76,14 @@ const EmiCalculator = () => {
         },
       });
     }
-  };
 
-  useEffect(() => {
     // Cleanup the chart when the component is unmounted
     return () => {
       if (window.chartInstance) {
         window.chartInstance.destroy();
       }
     };
-  }, []);
+  }, [chartData]);
 
   return (
     <Container className="mt-4">
@@ -119,29 +124,24 @@ const EmiCalculator = () => {
               />
             </Form.Group>
 
-            <Button
-              variant="primary"
-              className="w-100"
-              onClick={calculateEmi}
-            >
+            <Button variant="primary" className="w-100" onClick={calculateEmi}>
               Calculate
             </Button>
           </Form>
         </Col>
-      </Row>
-
-      {emi && (
-        <Row className="justify-content-center mt-4">
-          <Col xs={12} md={6}>
-            <h3 className="text-center mb-4">EMI: {emi}</h3>
-            <div className="chart-container">
-              <canvas ref={chartRef}></canvas>
+        <Col xs={12} md={6} className="text-center">
+          {emi && (
+            <div>
+              <h3 className="mb-4">EMI: {emi}</h3>
+              <div className="chart-container">
+                <canvas ref={chartRef}></canvas>
+              </div>
+              <h3 className="mt-4">Total Payment: {totalPayment}</h3>
+              <h3>Rate of Interest (ROI): {roi}%</h3>
             </div>
-            <h3 className="text-center mt-4">Total Payment: {totalPayment}</h3>
-            <h3 className="text-center">Rate of Interest (ROI): {roi}%</h3>
-          </Col>
-        </Row>
-      )}
+          )}
+        </Col>
+      </Row>
     </Container>
   );
 };
