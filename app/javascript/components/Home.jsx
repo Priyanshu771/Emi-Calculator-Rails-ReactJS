@@ -87,7 +87,14 @@ const EmiCalculator = () => {
 
   return (
     <Container className="mt-4">
-      <h1 className="text-center">EMI Calculator</h1>
+     <h1
+  className="text-center gradient-border-animation"
+  style={{ padding: "10px" }}
+>
+  EMI Calculator
+</h1>
+
+
       <Row className="justify-content-center mt-4">
         <Col xs={12} md={6}>
           <Form>
