@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Container, Row, Col, Form, Button } from "react-bootstrap";
+import { Container, Row, Col, Form, Button, Table } from "react-bootstrap";
 import Chart from "chart.js/auto";
 
 const EmiCalculator = () => {
@@ -10,6 +10,7 @@ const EmiCalculator = () => {
   const [totalPayment, setTotalPayment] = useState("");
   const [roi, setRoi] = useState("");
   const [chartData, setChartData] = useState(null);
+  const [monthlyData, setMonthlyData] = useState([]);
   const chartRef = useRef(null);
 
   const calculateEmi = () => {
@@ -38,6 +39,22 @@ const EmiCalculator = () => {
       ],
     };
     setChartData(newChartData);
+
+    // Generate monthly data
+    const monthlyEmi = emiAmount.toFixed(2);
+    const monthlyInterest = (p * r).toFixed(2);
+    const monthlyPrincipal = (monthlyEmi - monthlyInterest).toFixed(2);
+
+    const monthlyDataArray = [];
+    for (let i = 1; i <= n; i++) {
+      monthlyDataArray.push({
+        month: i,
+        emi: monthlyEmi,
+        interest: monthlyInterest,
+        principal: monthlyPrincipal,
+      });
+    }
+    setMonthlyData(monthlyDataArray);
   };
 
   useEffect(() => {
@@ -87,13 +104,9 @@ const EmiCalculator = () => {
 
   return (
     <Container className="mt-4">
-     <h1
-  className="text-center gradient-border-animation"
-  style={{ padding: "10px" }}
->
-  EMI Calculator
-</h1>
-
+      <h1 className="text-center gradient-border-animation" style={{ padding: "10px" }}>
+        EMI Calculator
+      </h1>
 
       <Row className="justify-content-center mt-4">
         <Col xs={12} md={6}>
@@ -149,6 +162,33 @@ const EmiCalculator = () => {
           )}
         </Col>
       </Row>
+
+      {monthlyData.length > 0 && (
+        <Row className="justify-content-center mt-4">
+          <Col xs={12} md={8}>
+            <Table striped bordered>
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>EMI</th>
+                  <th>Interest</th>
+                  <th>Principal</th>
+                </tr>
+              </thead>
+              <tbody>
+                {monthlyData.map((data) => (
+                  <tr key={data.month}>
+                    <td>{data.month}</td>
+                    <td>{data.emi}</td>
+                    <td>{data.interest}</td>
+                    <td>{data.principal}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </Col>
+        </Row>
+      )}
     </Container>
   );
 };
